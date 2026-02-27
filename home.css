@@ -24,8 +24,9 @@
 }
 
 .photo-card img {
-  width: 100%;
   display: block;
+  margin: 0 auto;
+  height: 260px;
 }
 
 .card-content {

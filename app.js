@@ -1,3 +1,16 @@
+import { db } from "./firebase.js";
+
+import {
+  collection,
+  getDocs,
+  getDoc,
+  doc,
+  addDoc,
+  deleteDoc,
+  query,
+  orderBy,
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
 /* ================================
    CONFIGURAÇÕES
 ================================ */
@@ -142,19 +155,74 @@ function protectRoute() {
 }
 
 /* ================================
-   HOME - CARREGA AS FOTOS
+   PHOTOS SERVICE (REMOTE ONLY)
 ================================ */
+
+const PHOTOS_COLLECTION = "fotos";
 
 async function fetchPhotos() {
   try {
-    const response = await fetch(PHOTOS_FILE);
-    if (!response.ok) throw new Error("Erro ao carregar fotos");
-    return await response.json();
+    const q = query(
+      collection(db, PHOTOS_COLLECTION),
+      orderBy("yearStart", "desc"),
+    );
+
+    const snapshot = await getDocs(q);
+
+    return snapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
   } catch (error) {
-    console.error(error);
+    console.error("Erro ao buscar fotos:", error);
     return [];
   }
 }
+
+async function fetchPhotoById(photoId) {
+  try {
+    const ref = doc(db, PHOTOS_COLLECTION, photoId);
+    const snapshot = await getDoc(ref);
+
+    if (!snapshot.exists()) return null;
+
+    return {
+      id: snapshot.id,
+      ...snapshot.data(),
+    };
+  } catch (error) {
+    console.error("Erro ao buscar foto:", error);
+    return null;
+  }
+}
+
+async function createPhoto(photoData) {
+  try {
+    const docRef = await addDoc(collection(db, PHOTOS_COLLECTION), {
+      ...photoData,
+      createdAt: new Date(),
+    });
+
+    return docRef.id;
+  } catch (error) {
+    console.error("Erro ao criar foto:", error);
+    return null;
+  }
+}
+
+async function deletePhoto(photoId) {
+  try {
+    await deleteDoc(doc(db, PHOTOS_COLLECTION, photoId));
+    return true;
+  } catch (error) {
+    console.error("Erro ao deletar foto:", error);
+    return false;
+  }
+}
+
+/* ================================
+   HOME - CARREGA AS FOTOS
+================================ */
 
 function createPhotoCard(photo) {
   const article = document.createElement("article");
@@ -264,8 +332,7 @@ async function initDetailsPage() {
     return;
   }
 
-  const photos = await fetchPhotos();
-  const photo = photos.find((p) => p.id === photoId);
+  const photo = await fetchPhotoById(photoId);
 
   if (!photo) {
     container.innerHTML = "<p>Foto não encontrada.</p>";
@@ -274,7 +341,6 @@ async function initDetailsPage() {
 
   container.innerHTML = `
     <article class="photo-details-card">
-      <img src="${photo.image}" alt="Foto da família" />
       
       <div class="details-content">
         <p class="year-range">
@@ -286,6 +352,9 @@ async function initDetailsPage() {
         ${photo.event ? `<p class="event">🎉 ${photo.event}</p>` : ""}
         ${photo.description ? `<p class="description">${photo.description}</p>` : ""}
       </div>
+      
+      <img src="${photo.image}" alt="Foto da família" />
+
     </article>
 
     <section class="comments-section">

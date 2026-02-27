@@ -4,7 +4,7 @@
     "username": "IaraNS",
     "email": "iara.nascimento@gmail.com",
     "phone": "11942844136",
-    "password": "SenhaTesteDaIara"
+    "password": "iara.sztybe"
   },
   {
     "id": "002",
@@ -12,5 +12,12 @@
     "email": "claunasc@yahoo.com.br",
     "phone": "7999993985",
     "password": "claudia.maria.nascimento"
+  },
+  {
+    "id": "003",
+    "username": "TiagoNM",
+    "email": "tiago.morais@ygmail.com.br",
+    "phone": "11972766150",
+    "password": "tiago.morais"
   }
 ]
