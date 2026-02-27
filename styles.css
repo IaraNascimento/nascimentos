@@ -1,0 +1,116 @@
+@import url("https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Quicksand:wght@300;400;600&display=swap");
+
+/* ================================
+   RESET
+================================ */
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: "Quicksand", sans-serif;
+  background: linear-gradient(135deg, #fdf6f0, #f8e8dc);
+  min-height: 100vh;
+  color: #7a6a60;
+  padding: 20px;
+}
+
+/* ================================
+   TIPOGRAFIA PADRÃO
+================================ */
+
+.title {
+  font-family: "Playfair Display", serif;
+  font-size: clamp(22px, 5vw, 36px);
+  color: #8c5b3f;
+}
+
+.family-name {
+  font-family: "Playfair Display", serif;
+  font-size: clamp(16px, 4vw, 24px);
+  color: #c08552;
+}
+
+.subtitle {
+  font-size: 14px;
+  margin-top: 8px;
+}
+
+/* ================================
+   HEADER PADRÃO
+================================ */
+
+.header {
+  text-align: center;
+  margin-bottom: 30px;
+  position: relative;
+}
+
+/* ================================
+   BOTÕES PADRÃO
+================================ */
+
+button {
+  font-family: "Quicksand", sans-serif;
+  cursor: pointer;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 16px;
+  font-weight: 600;
+  transition: 0.3s;
+}
+
+/* ================================
+   BOTÃO DE LOGOUT
+================================ */
+
+#logoutButton {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: linear-gradient(135deg, #d9a066, #c08552);
+  color: white;
+  font-size: 13px;
+}
+
+#logoutButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(192, 133, 82, 0.3);
+}
+
+/* ================================
+   CONTAINER BASE CENTRALIZADO
+================================ */
+
+.page-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* ================================
+   RESPONSIVIDADE
+================================ */
+
+/* Tablet */
+@media (min-width: 768px) {
+  body {
+    padding: 30px;
+  }
+}
+
+/* Desktop */
+@media (min-width: 1200px) {
+  body {
+    padding: 40px 60px;
+  }
+}
+
+/* Desktop grande */
+@media (min-width: 1600px) {
+  body {
+    padding: 50px 120px;
+  }
+}

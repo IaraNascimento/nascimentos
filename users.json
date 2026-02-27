@@ -1,0 +1,16 @@
+[
+  {
+    "id": "001",
+    "username": "IaraNS",
+    "email": "iara.nascimento@gmail.com",
+    "phone": "11942844136",
+    "password": "SenhaTesteDaIara"
+  },
+  {
+    "id": "002",
+    "username": "TiaClaudia",
+    "email": "claunasc@yahoo.com.br",
+    "phone": "7999993985",
+    "password": "claudia.maria.nascimento"
+  }
+]

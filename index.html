@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Álbum da Família Nascimento</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="index.css" />
+  </head>
+  <body>
+    <div class="background-overlay"></div>
+
+    <div class="login-wrapper">
+      <div class="login-container">
+        <div class="album-decoration">
+          <div class="photo-corner top-left"></div>
+          <div class="photo-corner top-right"></div>
+          <div class="photo-corner bottom-left"></div>
+          <div class="photo-corner bottom-right"></div>
+        </div>
+
+        <h1 class="title">Família Nascimento</h1>
+        <h2 class="family-name">Álbum Particular 📖</h2>
+
+        <p class="welcome-text">Bem-vinde as nossas memórias.</p>
+
+        <form class="login-form">
+          <label for="user">Login / E-mail / celular</label>
+          <input
+            type="text"
+            id="user"
+            placeholder="iara.nascimento@gmail.com"
+          />
+
+          <div class="password-field">
+            <label for="password">Sua palavra secreta</label>
+
+            <div class="password-input-wrapper">
+              <input type="password" id="password" placeholder="•••••" />
+              <button
+                type="button"
+                id="togglePassword"
+                class="toggle-password"
+                aria-label="Mostrar senha"
+              >
+                👁️
+              </button>
+            </div>
+          </div>
+
+          <button id="submit-form" type="submit">abrir</button>
+        </form>
+
+        <p class="footer-note">
+          Somente membros da família podem folhear estas páginas.
+        </p>
+      </div>
+    </div>
+  </body>
+
+  <script src="app.js"></script>
+</html>

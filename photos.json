@@ -1,0 +1,29 @@
+[
+  {
+    "id": "101",
+    "image": "https://via.placeholder.com/600x400",
+    "yearStart": 1998,
+    "yearEnd": 2000,
+    "location": "São Paulo, SP",
+    "people": ["Maria", "João", "Iara"],
+    "event": "Aniversário"
+  },
+  {
+    "id": "102",
+    "image": "https://via.placeholder.com/600x400",
+    "yearStart": 2005,
+    "yearEnd": 2006,
+    "location": "Praia Grande",
+    "people": ["Ana", "Carlos"],
+    "event": "Natal"
+  },
+  {
+    "id": "103",
+    "image": "https://via.placeholder.com/600x400",
+    "yearStart": 2012,
+    "yearEnd": 2012,
+    "location": "",
+    "people": [],
+    "event": "Espontâneo"
+  }
+]

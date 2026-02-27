@@ -1,0 +1,68 @@
+/* ================================
+   CONTAINER PRINCIPAL
+================================ */
+
+.gallery {
+  display: grid;
+  gap: 20px;
+}
+
+/* CARD */
+.photo-card {
+  background: #fffdfb;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 2px solid #f2d6c2;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+  transition: 0.3s;
+  cursor: pointer;
+}
+
+.photo-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.1);
+}
+
+.photo-card img {
+  width: 100%;
+  display: block;
+}
+
+.card-content {
+  padding: 16px;
+}
+
+.card-content p {
+  font-size: 14px;
+  margin-bottom: 6px;
+}
+
+.year-range {
+  font-weight: 600;
+  color: #8c5b3f;
+}
+
+/* RESPONSIVIDADE */
+
+/* Mobile = 1 coluna por padrão */
+
+/* Tablet */
+@media (min-width: 768px) {
+  .gallery {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Desktop */
+@media (min-width: 1200px) {
+  .gallery {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Desktop grande */
+@media (min-width: 1600px) {
+  .gallery {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
