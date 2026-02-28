@@ -4,7 +4,9 @@
 
 .gallery {
   display: grid;
-  gap: 20px;
+  gap: 16px;
+  margin-bottom: 48px;
+  grid-template-columns: repeat(2, 1fr);
 }
 
 /* CARD */
@@ -26,7 +28,7 @@
 .photo-card img {
   display: block;
   margin: 0 auto;
-  height: 260px;
+  height: 200px;
 }
 
 .card-content {
@@ -43,6 +45,95 @@
   color: #8c5b3f;
 }
 
+/* FOOTER */
+
+.app-footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 48px;
+  background: #8c5b3f;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  box-sizing: border-box;
+  font-family: sans-serif;
+  z-index: 1000;
+}
+
+.footer-left,
+.footer-center,
+.footer-right {
+  display: flex;
+  align-items: center;
+  font-size: 12px;
+}
+
+.footer-center {
+  justify-content: center;
+  flex: 1;
+}
+
+.footer-left {
+  min-width: 250px;
+}
+
+.footer-right {
+  min-width: 200px;
+  justify-content: flex-end;
+}
+
+.upload-button {
+  background: white;
+  color: #8c5b3f;
+  padding: 8px 16px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: 0.2s ease;
+  font-size: 13px;
+}
+
+.upload-button:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.1);
+}
+
+/* MODAL */
+
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+}
+
+.hidden {
+  display: none;
+}
+
+.modal-content {
+  background: white;
+  padding: 20px;
+  width: 400px;
+  max-width: 90%;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+}
+
 /* RESPONSIVIDADE */
 
 /* Mobile = 1 coluna por padrão */
@@ -50,20 +141,20 @@
 /* Tablet */
 @media (min-width: 768px) {
   .gallery {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(3, 1fr);
   }
 }
 
 /* Desktop */
 @media (min-width: 1200px) {
   .gallery {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, 1fr);
   }
 }
 
 /* Desktop grande */
 @media (min-width: 1600px) {
   .gallery {
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(5, 1fr);
   }
 }

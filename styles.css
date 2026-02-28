@@ -91,6 +91,57 @@ button {
 }
 
 /* ================================
+   CARREGANDO - LOADING
+================================ */
+
+#app-loading {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(10, 10, 20, 0.75);
+  backdrop-filter: blur(6px);
+  z-index: 9999;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+#app-loading.active {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.loading-box {
+  text-align: center;
+  color: #fff;
+}
+
+.loading-emoji {
+  font-size: 48px;
+  animation: float 1.5s infinite ease-in-out;
+}
+
+.loading-text {
+  margin-top: 12px;
+  font-size: 14px;
+  letter-spacing: 1px;
+}
+
+@keyframes float {
+  0% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+/* ================================
    RESPONSIVIDADE
 ================================ */
 

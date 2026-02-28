@@ -11,11 +11,57 @@
     <header class="header">
       <button id="logoutButton">sair</button>
       <h1 class="title">Os Nascimentos</h1>
-      <h2 class="family-name">Álbum Particular</h2>
-      <p class="subtitle">Memórias de carinho ✨</p>
+      <!-- <h2 class="family-name">Álbum Particular</h2> -->
+      <p class="subtitle">Nossas memórias ✨</p>
     </header>
 
     <main class="gallery" id="gallery"></main>
+
+    <footer class="app-footer">
+      <div class="footer-left">feito com carinho | @iara.nascimento.sztybe</div>
+
+      <div class="footer-center">
+        <label for="photoUpload" class="upload-button">enviar</label>
+        <input type="file" id="photoUpload" multiple accept="image/*" hidden />
+      </div>
+
+      <div class="footer-right">
+        <span id="photoCounter"></span>
+      </div>
+    </footer>
+
+    <div id="photoModal" class="modal hidden">
+      <div class="modal-content">
+        <h3>Registrar nova memória</h3>
+
+        <form id="photoForm">
+          <input
+            type="number"
+            id="yearStart"
+            placeholder="Ano inicial"
+            required
+          />
+          <input type="number" id="yearEnd" placeholder="Ano final" />
+
+          <input type="text" id="location" placeholder="Local" />
+
+          <input
+            type="text"
+            id="people"
+            placeholder="Pessoas (separadas por vírgula)"
+          />
+
+          <input type="text" id="event" placeholder="Evento" />
+
+          <textarea id="description" placeholder="Descrição"></textarea>
+
+          <div class="modal-actions">
+            <button type="button" id="cancelPhoto">Cancelar</button>
+            <button type="submit">Gravar</button>
+          </div>
+        </form>
+      </div>
+    </div>
   </body>
 
   <script type="module" src="firebase.js"></script>

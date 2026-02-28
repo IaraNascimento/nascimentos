@@ -11,8 +11,61 @@ import {
   orderBy,
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
+import {
+  getStorage,
+  ref,
+  uploadBytes,
+  getDownloadURL,
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
+
 /* ================================
-   CONFIGURAÇÕES
+  LOADING GLOBAL COM CONTADOR
+================================ */
+
+const LoadingManager = (() => {
+  let counter = 0;
+
+  function createLoadingHTML() {
+    const div = document.createElement("div");
+    div.id = "app-loading";
+    div.innerHTML = `
+      <div class="loading-box">
+        <div class="loading-emoji">📸✨</div>
+        <p class="loading-text">Revelando memórias...</p>
+      </div>
+    `;
+    document.body.appendChild(div);
+  }
+
+  function show() {
+    counter++;
+    const el = document.getElementById("app-loading");
+    if (el) el.classList.add("active");
+  }
+
+  function hide() {
+    counter--;
+    if (counter <= 0) {
+      counter = 0;
+      const el = document.getElementById("app-loading");
+      if (el) el.classList.remove("active");
+    }
+  }
+
+  async function wrap(asyncFn) {
+    show();
+    try {
+      return await asyncFn();
+    } finally {
+      hide();
+    }
+  }
+
+  return { createLoadingHTML, show, hide, wrap };
+})();
+
+/* ================================
+  CONFIGURAÇÕES
 ================================ */
 
 const ROUTES = {
@@ -27,14 +80,16 @@ const STORAGE_KEYS = {
 };
 
 const USERS_FILE = "users.json";
+const PHOTOS_COLLECTION = "fotos";
 
-const PHOTOS_FILE = "photos.json";
+const storage = getStorage();
 
 /* ================================
-   UTILIDADES
+  UTILIDADES
 ================================ */
 
 function redirectTo(route) {
+  LoadingManager.show();
   globalThis.location.href = route;
 }
 
@@ -62,22 +117,19 @@ function clearSession() {
 }
 
 /* ================================
-   FETCH USUÁRIOS
+  CARREGA USUÁRIOS
 ================================ */
 
 async function fetchUsers() {
-  try {
+  return LoadingManager.wrap(async () => {
     const response = await fetch(USERS_FILE);
     if (!response.ok) throw new Error("Erro ao carregar usuários");
     return await response.json();
-  } catch (error) {
-    console.error(error);
-    return [];
-  }
+  });
 }
 
 /* ================================
-   VALIDAÇÃO DE LOGIN
+  ACESSO - LOGIN
 ================================ */
 
 function findUser(users, loginInput, passwordInput) {
@@ -90,30 +142,28 @@ function findUser(users, loginInput, passwordInput) {
   );
 }
 
-/* ================================
-   LOGIN
-================================ */
-
 async function handleLoginSubmit(event) {
   event.preventDefault();
 
-  const loginInput = document.getElementById("user")?.value.trim();
-  const passwordInput = document.getElementById("password")?.value.trim();
+  await LoadingManager.wrap(async () => {
+    const loginInput = document.getElementById("user")?.value.trim();
+    const passwordInput = document.getElementById("password")?.value.trim();
 
-  if (!loginInput || !passwordInput) {
-    alert("Preencha todos os campos.");
-    return;
-  }
+    if (!loginInput || !passwordInput) {
+      alert("Preencha todos os campos.");
+      return;
+    }
 
-  const users = await fetchUsers();
-  const userFound = findUser(users, loginInput, passwordInput);
+    const users = await fetchUsers();
+    const userFound = findUser(users, loginInput, passwordInput);
 
-  if (userFound) {
-    saveSession(userFound);
-    redirectTo(ROUTES.HOME);
-  } else {
-    alert("Credenciais inválidas.");
-  }
+    if (userFound) {
+      saveSession(userFound);
+      redirectTo(ROUTES.HOME);
+    } else {
+      alert("Credenciais inválidas.");
+    }
+  });
 }
 
 function initLogin() {
@@ -124,7 +174,7 @@ function initLogin() {
 }
 
 /* ================================
-   LOGOUT
+  LOGOUT
 ================================ */
 
 function handleLogout() {
@@ -140,7 +190,7 @@ function initLogoutButton() {
 }
 
 /* ================================
-   PROTEÇÃO DE ROTAS
+  PROTEÇÃO DE ROTAS
 ================================ */
 
 function protectRoute() {
@@ -149,19 +199,15 @@ function protectRoute() {
 
   if (!protectedPages.includes(currentPage)) return;
 
-  if (!isLoggedIn()) {
-    redirectTo(ROUTES.LOGIN);
-  }
+  if (!isLoggedIn()) redirectTo(ROUTES.LOGIN);
 }
 
 /* ================================
-   PHOTOS SERVICE (REMOTE ONLY)
+  SERVIÇOS DE FOTOS - FIRESTORE
 ================================ */
 
-const PHOTOS_COLLECTION = "fotos";
-
 async function fetchPhotos() {
-  try {
+  return LoadingManager.wrap(async () => {
     const q = query(
       collection(db, PHOTOS_COLLECTION),
       orderBy("yearStart", "desc"),
@@ -173,41 +219,29 @@ async function fetchPhotos() {
       id: doc.id,
       ...doc.data(),
     }));
-  } catch (error) {
-    console.error("Erro ao buscar fotos:", error);
-    return [];
-  }
+  });
 }
 
 async function fetchPhotoById(photoId) {
-  try {
-    const ref = doc(db, PHOTOS_COLLECTION, photoId);
-    const snapshot = await getDoc(ref);
+  return LoadingManager.wrap(async () => {
+    const refDoc = doc(db, PHOTOS_COLLECTION, photoId);
+    const snapshot = await getDoc(refDoc);
 
     if (!snapshot.exists()) return null;
 
-    return {
-      id: snapshot.id,
-      ...snapshot.data(),
-    };
-  } catch (error) {
-    console.error("Erro ao buscar foto:", error);
-    return null;
-  }
+    return { id: snapshot.id, ...snapshot.data() };
+  });
 }
 
 async function createPhoto(photoData) {
-  try {
+  return LoadingManager.wrap(async () => {
     const docRef = await addDoc(collection(db, PHOTOS_COLLECTION), {
       ...photoData,
       createdAt: new Date(),
     });
 
     return docRef.id;
-  } catch (error) {
-    console.error("Erro ao criar foto:", error);
-    return null;
-  }
+  });
 }
 
 async function deletePhoto(photoId) {
@@ -220,8 +254,18 @@ async function deletePhoto(photoId) {
   }
 }
 
+async function uploadImageToFirebase(file) {
+  return LoadingManager.wrap(async () => {
+    const fileName = `${Date.now()}_${file.name}`;
+    const storageRef = ref(storage, `fotos/${fileName}`);
+
+    await uploadBytes(storageRef, file);
+    return await getDownloadURL(storageRef);
+  });
+}
+
 /* ================================
-   HOME - CARREGA AS FOTOS
+  GALERIA DE FOTOS
 ================================ */
 
 function createPhotoCard(photo) {
@@ -233,15 +277,22 @@ function createPhotoCard(photo) {
     <img src="${photo.image}" alt="Foto da família" />
     <div class="card-content">
       <p class="year-range">
-        ${photo.yearStart == photo.yearEnd ? photo.yearStart : `${photo.yearStart} ~ ${photo.yearEnd}`}
+        ${
+          photo.yearStart == photo.yearEnd
+            ? photo.yearStart
+            : `${photo.yearStart} ~ ${photo.yearEnd}`
+        }
       </p>
       ${photo.location ? `<p class="location">📍 ${photo.location}</p>` : ""}
       ${photo.people.length ? `<p class="people">👨‍👩‍👧‍👦 ${photo.people.join(", ")}</p>` : ""}
       ${photo.event ? `<p class="event">🎉 ${photo.event}</p>` : ""}
+
     </div>
   `;
 
-  article.addEventListener("click", handleCardClick);
+  article.addEventListener("click", () =>
+    redirectTo(`${ROUTES.DETAILS}?id=${photo.id}`),
+  );
 
   return article;
 }
@@ -251,37 +302,15 @@ async function renderGallery() {
   if (!gallery) return;
 
   const photos = await fetchPhotos();
-
   gallery.innerHTML = "";
 
   photos.forEach((photo) => {
-    const card = createPhotoCard(photo);
-    gallery.appendChild(card);
+    gallery.appendChild(createPhotoCard(photo));
   });
 }
 
 /* ================================
-   HOME - SELECIONA UMA FOTO
-================================ */
-
-function handleCardClick(event) {
-  const card = event.target.closest(".photo-card");
-  console.log("CARD:", card);
-
-  if (!card) return;
-
-  console.log("DATASET:", card.dataset);
-
-  const photoId = card.dataset.photoId;
-  console.log("PHOTO ID:", photoId);
-
-  if (!photoId) return;
-
-  redirectTo(`${ROUTES.DETAILS}?id=${photoId}`);
-}
-
-/* ================================
-   DETAILS
+  DETALHES DE FOTO
 ================================ */
 
 function initBackButton() {
@@ -293,47 +322,12 @@ function initBackButton() {
   });
 }
 
-function getCommentsStorageKey(photoId) {
-  return `familia_nascimento_comments_${photoId}`;
-}
-
-function saveComment(photoId, comment) {
-  const key = getCommentsStorageKey(photoId);
-  const existing = JSON.parse(localStorage.getItem(key)) || [];
-  existing.push(comment);
-  localStorage.setItem(key, JSON.stringify(existing));
-}
-
-function getComments(photoId) {
-  const key = getCommentsStorageKey(photoId);
-  return JSON.parse(localStorage.getItem(key)) || [];
-}
-
-function createCommentElement(comment) {
-  const div = document.createElement("div");
-  div.classList.add("comment");
-
-  div.innerHTML = `
-    <p class="comment-author"><strong>${comment.author}</strong></p>
-    <p class="comment-text">${comment.text}</p>
-    <p class="comment-date">${comment.date}</p>
-  `;
-
-  return div;
-}
-
 async function initDetailsPage() {
   const photoId = getQueryParam("id");
   const container = document.getElementById("photoDetails");
-  if (!container) return;
-
-  if (!photoId) {
-    container.innerHTML = "<p>Foto não encontrada.</p>";
-    return;
-  }
+  if (!container || !photoId) return;
 
   const photo = await fetchPhotoById(photoId);
-
   if (!photo) {
     container.innerHTML = "<p>Foto não encontrada.</p>";
     return;
@@ -341,8 +335,8 @@ async function initDetailsPage() {
 
   container.innerHTML = `
     <article class="photo-details-card">
-      
-      <div class="details-content">
+
+    <div class="details-content">
         <p class="year-range">
           ${photo.yearStart == photo.yearEnd ? photo.yearStart : `${photo.yearStart} - ${photo.yearEnd}`}
         </p>
@@ -351,74 +345,17 @@ async function initDetailsPage() {
         ${photo.people.length ? `<p class="people">👨‍👩‍👧‍👦 ${photo.people.join(", ")}</p>` : ""}
         ${photo.event ? `<p class="event">🎉 ${photo.event}</p>` : ""}
         ${photo.description ? `<p class="description">${photo.description}</p>` : ""}
-      </div>
-      
-      <img src="${photo.image}" alt="Foto da família" />
+        
+        </div>
 
-    </article>
+        <img src="${photo.image}" />
 
-    <section class="comments-section">
-      <h3>Comentários</h3>
-
-      <div id="commentsList"></div>
-
-      <form id="commentForm" class="comment-form">
-        <input type="text" id="commentAuthor" placeholder="Seu nome" required />
-        <textarea id="commentText" placeholder="Escreva sua lembrança..." required></textarea>
-        <button type="submit">Enviar comentário</button>
-      </form>
-    </section>
+        </article>
   `;
-
-  renderComments(photoId);
-  initCommentForm(photoId);
-}
-
-function renderComments(photoId) {
-  const commentsList = document.getElementById("commentsList");
-  if (!commentsList) return;
-
-  const comments = getComments(photoId);
-
-  commentsList.innerHTML = "";
-
-  if (!comments.length) {
-    commentsList.innerHTML = "<p>Nenhum comentário ainda.</p>";
-    return;
-  }
-
-  comments.forEach((comment) => {
-    const commentElement = createCommentElement(comment);
-    commentsList.appendChild(commentElement);
-  });
-}
-
-function initCommentForm(photoId) {
-  const form = document.getElementById("commentForm");
-  if (!form) return;
-
-  form.addEventListener("submit", (event) => {
-    event.preventDefault();
-
-    const author = document.getElementById("commentAuthor").value.trim();
-    const text = document.getElementById("commentText").value.trim();
-
-    if (!author || !text) return;
-
-    const newComment = {
-      author,
-      text,
-      date: new Date().toLocaleString("pt-BR"),
-    };
-
-    saveComment(photoId, newComment);
-    form.reset();
-    renderComments(photoId);
-  });
 }
 
 /* ================================
-   TOGGLE PASSWORD
+  TOGGLE PASSWORD
 ================================ */
 
 function togglePasswordVisibility() {
@@ -445,10 +382,58 @@ function initTogglePassword() {
 }
 
 /* ================================
-   INICIALIZAÇÃO GERAL
+  HOME - ENVIAR FOTO NOVA
+================================ */
+let selectedFile = null;
+
+function initPhotoUploadFlow() {
+  const photoUpload = document.getElementById("photoUpload");
+  const modal = document.getElementById("photoModal");
+  const cancelBtn = document.getElementById("cancelPhoto");
+  const form = document.getElementById("photoForm");
+  if (!photoUpload || !modal || !form) return;
+  photoUpload.addEventListener("change", (event) => {
+    const files = event.target.files;
+    if (!files.length) return;
+    selectedFile = files[0];
+    modal.classList.remove("hidden");
+  });
+  cancelBtn.addEventListener("click", () => {
+    selectedFile = null;
+    form.reset();
+    modal.classList.add("hidden");
+  });
+  form.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    if (!selectedFile) return;
+    const imageUrl = await uploadImageToFirebase(selectedFile);
+    const photoData = {
+      image: imageUrl,
+      yearStart: Number(document.getElementById("yearStart").value),
+      yearEnd: Number(document.getElementById("yearEnd").value) || null,
+      location: document.getElementById("location").value.trim(),
+      people: document
+        .getElementById("people")
+        .value.split(",")
+        .map((p) => p.trim())
+        .filter(Boolean),
+      event: document.getElementById("event").value.trim(),
+      description: document.getElementById("description").value.trim(),
+    };
+    await createPhoto(photoData);
+    modal.classList.add("hidden");
+    form.reset();
+    selectedFile = null;
+    await renderGallery();
+  });
+}
+
+/* ================================
+  INICIALIZAÇÃO GERAL
 ================================ */
 
 function initApp() {
+  LoadingManager.createLoadingHTML();
   protectRoute();
   initLogin();
   initLogoutButton();
@@ -456,6 +441,7 @@ function initApp() {
   initTogglePassword();
   renderGallery();
   initBackButton();
+  initPhotoUploadFlow();
 }
 
 document.addEventListener("DOMContentLoaded", initApp);
