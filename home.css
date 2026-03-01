@@ -1,6 +1,54 @@
-/* ================================
-   CONTAINER PRINCIPAL
-================================ */
+/* FILTROS */
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 24px;
+  padding: 16px;
+  background: white;
+  border-radius: 16px;
+  border: 2px solid #f2d6c2;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  font-size: 14px;
+}
+
+.filter-group label {
+  margin-bottom: 8px;
+  color: #8c5b3f;
+}
+
+.filter-group input,
+.filter-group select {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 2px solid #f2d6c2;
+}
+
+.filter-group input[type="number"]::-webkit-outer-spin-button,
+.filter-group input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.filter-group input[type="number"] {
+  -moz-appearance: textfield;
+  max-width: 80px;
+}
+
+.filter-group input[type="text"] {
+  min-width: 260px;
+}
+
+.filter-group select {
+  min-width: 200px;
+}
+
+/* GALERIA */
 
 .gallery {
   display: grid;
@@ -10,6 +58,7 @@
 }
 
 /* CARD */
+
 .photo-card {
   background: #fffdfb;
   border-radius: 16px;
@@ -110,16 +159,21 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 2000;
+  z-index: 8888;
 }
 
 .hidden {
   display: none;
 }
 
+.modal h3 {
+  display: block;
+  margin: 16px auto;
+}
+
 .modal-content {
   background: white;
-  padding: 20px;
+  padding: 16px;
   width: 400px;
   max-width: 90%;
   border-radius: 8px;
@@ -128,15 +182,65 @@
   gap: 10px;
 }
 
+.modal-content form div {
+  display: flex;
+  justify-content: space-between;
+}
+
+.modal-content form label {
+  display: inline-block;
+  margin-bottom: 8px;
+  color: #8c5b3f;
+}
+
+.modal input,
+.modal select {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 2px solid #f2d6c2;
+  margin-bottom: 16px;
+}
+
+.modal input[type="number"]::-webkit-outer-spin-button,
+.modal input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.modal input[type="number"] {
+  -moz-appearance: textfield;
+  max-width: calc(50% - 8px);
+}
+
+.modal input[type="text"],
+.modal select {
+  min-width: 100%;
+}
+
 .modal-actions {
   display: flex;
   justify-content: space-between;
   margin-top: 10px;
 }
 
-/* RESPONSIVIDADE */
+#logoutButton {
+  position: absolute;
+  top: 0;
+  right: 0;
+  font-size: 13px;
+}
 
-/* Mobile = 1 coluna por padrão */
+.modal-actions button[type="submit"] {
+  background: linear-gradient(135deg, #d9a066, #c08552);
+  color: white;
+}
+
+.modal-actions button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(192, 133, 82, 0.3);
+}
+
+/* RESPONSIVIDADE */
 
 /* Tablet */
 @media (min-width: 768px) {

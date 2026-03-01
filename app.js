@@ -268,6 +268,8 @@ async function uploadImageToFirebase(file) {
   GALERIA DE FOTOS
 ================================ */
 
+let allPhotos = [];
+
 function createPhotoCard(photo) {
   const article = document.createElement("article");
   article.classList.add("photo-card");
@@ -278,7 +280,7 @@ function createPhotoCard(photo) {
     <div class="card-content">
       <p class="year-range">
         ${
-          photo.yearStart == photo.yearEnd
+          !photo.yearEnd || photo.yearStart === photo.yearEnd
             ? photo.yearStart
             : `${photo.yearStart} ~ ${photo.yearEnd}`
         }
@@ -297,16 +299,75 @@ function createPhotoCard(photo) {
   return article;
 }
 
+function applyFiltersAndSort() {
+  const gallery = document.getElementById("gallery");
+  if (!gallery) return;
+
+  let filtered = [...allPhotos];
+
+  const yearStart = Number(document.getElementById("filterYearStart")?.value);
+  const yearEnd = Number(document.getElementById("filterYearEnd")?.value);
+  const location = document
+    .getElementById("filterLocation")
+    ?.value.toLowerCase();
+  const people = document.getElementById("filterPeople")?.value;
+  const event = document.getElementById("filterEvent")?.value;
+  const sortOption = document.getElementById("sortSelect")?.value;
+
+  if (yearStart) filtered = filtered.filter((p) => p.yearStart >= yearStart);
+
+  if (yearEnd) filtered = filtered.filter((p) => p.yearStart <= yearEnd);
+
+  if (location)
+    filtered = filtered.filter((p) =>
+      p.location?.toLowerCase().includes(location),
+    );
+
+  if (people) filtered = filtered.filter((p) => p.people?.includes(people));
+
+  if (event) filtered = filtered.filter((p) => p.event === event);
+
+  const sortMap = {
+    dateAsc: (a, b) => a.yearStart - b.yearStart,
+    dateDesc: (a, b) => b.yearStart - a.yearStart,
+    locationAsc: (a, b) => (a.location || "").localeCompare(b.location || ""),
+    locationDesc: (a, b) => (b.location || "").localeCompare(a.location || ""),
+    peopleAsc: (a, b) =>
+      (a.people?.[0] || "").localeCompare(b.people?.[0] || ""),
+    peopleDesc: (a, b) =>
+      (b.people?.[0] || "").localeCompare(a.people?.[0] || ""),
+  };
+
+  if (sortMap[sortOption]) {
+    filtered.sort(sortMap[sortOption]);
+  }
+
+  gallery.innerHTML = "";
+
+  if (!filtered.length) {
+    gallery.innerHTML = "<p>Nenhuma memória encontrada 🫥</p>";
+    return;
+  }
+
+  filtered.forEach((photo) => gallery.appendChild(createPhotoCard(photo)));
+}
+
+function initFilters() {
+  const inputs = document.querySelectorAll(
+    "#filterYearStart, #filterYearEnd, #filterLocation, #filterPeople, #filterEvent, #sortSelect",
+  );
+
+  inputs.forEach((input) =>
+    input.addEventListener("input", applyFiltersAndSort),
+  );
+}
+
 async function renderGallery() {
   const gallery = document.getElementById("gallery");
   if (!gallery) return;
 
-  const photos = await fetchPhotos();
-  gallery.innerHTML = "";
-
-  photos.forEach((photo) => {
-    gallery.appendChild(createPhotoCard(photo));
-  });
+  allPhotos = await fetchPhotos();
+  applyFiltersAndSort();
 }
 
 /* ================================
@@ -338,7 +399,7 @@ async function initDetailsPage() {
 
     <div class="details-content">
         <p class="year-range">
-          ${photo.yearStart == photo.yearEnd ? photo.yearStart : `${photo.yearStart} - ${photo.yearEnd}`}
+          ${!photo.yearEnd || photo.yearStart === photo.yearEnd ? photo.yearStart : `${photo.yearStart} ~ ${photo.yearEnd}`}
         </p>
 
         ${photo.location ? `<p class="location">📍 ${photo.location}</p>` : ""}
@@ -418,7 +479,7 @@ function initPhotoUploadFlow() {
         .map((p) => p.trim())
         .filter(Boolean),
       event: document.getElementById("event").value.trim(),
-      description: document.getElementById("description").value.trim(),
+      // description: document.getElementById("description").value.trim(),
     };
     await createPhoto(photoData);
     modal.classList.add("hidden");
@@ -440,6 +501,7 @@ function initApp() {
   initDetailsPage();
   initTogglePassword();
   renderGallery();
+  initFilters();
   initBackButton();
   initPhotoUploadFlow();
 }

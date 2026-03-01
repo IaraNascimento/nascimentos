@@ -15,6 +15,70 @@
       <p class="subtitle">Nossas memórias ✨</p>
     </header>
 
+    <section class="filters">
+      <div class="filter-group">
+        <label>Ano Inicial</label>
+        <input
+          type="number"
+          id="filterYearStart"
+          value="1900"
+          placeholder="1900"
+        />
+      </div>
+
+      <div class="filter-group">
+        <label>Ano Final</label>
+        <input
+          type="number"
+          id="filterYearEnd"
+          value="2999"
+          placeholder="2999"
+        />
+      </div>
+
+      <div class="filter-group">
+        <label>Local</label>
+        <input
+          type="text"
+          id="filterLocation"
+          value=""
+          placeholder="local..."
+        />
+      </div>
+
+      <div class="filter-group">
+        <label>Pessoas</label>
+        <select id="filterPeople">
+          <option value="">Todes</option>
+          <option value="Iara">Iara</option>
+          <option value="Marquesa">Marquesa</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label>Tipo</label>
+        <select id="filterEvent">
+          <option value="">Todos</option>
+          <option value="Aniversário">Aniversário</option>
+          <option value="Natal">Natal</option>
+          <option value="Ano Novo">Ano Novo</option>
+          <option value="Espontâneo">Espontâneo</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label>Ordenar Por</label>
+        <select id="sortSelect">
+          <option value="dateAsc">Data Crescente</option>
+          <option value="dateDesc">Data Decrescente</option>
+          <option value="locationAsc">Local A-Z</option>
+          <option value="locationDesc">Local Z-A</option>
+          <option value="peopleAsc">Pessoas A-Z</option>
+          <option value="peopleDesc">Pessoas Z-A</option>
+        </select>
+      </div>
+    </section>
+
     <main class="gallery" id="gallery"></main>
 
     <footer class="app-footer">
@@ -35,13 +99,16 @@
         <h3>Registrar nova memória</h3>
 
         <form id="photoForm">
-          <input
-            type="number"
-            id="yearStart"
-            placeholder="Ano inicial"
-            required
-          />
-          <input type="number" id="yearEnd" placeholder="Ano final" />
+          <div>
+            <input
+              type="number"
+              id="yearStart"
+              placeholder="Ano inicial* (obrigatório)"
+              required
+            />
+
+            <input type="number" id="yearEnd" placeholder="Ano final" />
+          </div>
 
           <input type="text" id="location" placeholder="Local" />
 
@@ -51,9 +118,15 @@
             placeholder="Pessoas (separadas por vírgula)"
           />
 
-          <input type="text" id="event" placeholder="Evento" />
+          <select id="event">
+            <option value="">Tipo de evento</option>
+            <option value="Aniversário">Aniversário</option>
+            <option value="Natal">Natal</option>
+            <option value="Ano Novo">Ano Novo</option>
+            <option value="Espontâneo">Espontâneo</option>
+          </select>
 
-          <textarea id="description" placeholder="Descrição"></textarea>
+          <!-- <textarea id="description" placeholder="Descrição"></textarea> -->
 
           <div class="modal-actions">
             <button type="button" id="cancelPhoto">Cancelar</button>
