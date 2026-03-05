@@ -1,0 +1,27 @@
+[
+  {
+    "id": "filterPeople",
+    "defaultLabel": "Todes",
+    "options": [
+      "Amanda",
+      "Cidinha",
+      "Cláudia",
+      "Fátima",
+      "Hilda",
+      "Iara",
+      "Inês",
+      "Isabel",
+      "Manoel",
+      "Marília",
+      "Pedro",
+      "Rita",
+      "Samuel",
+      "Tiago"
+    ]
+  },
+  {
+    "id": "filterEvent",
+    "defaultLabel": "Todos",
+    "options": ["Aniversário", "Natal", "Ano Novo", "Viagem", "Espontâneo"]
+  }
+]
