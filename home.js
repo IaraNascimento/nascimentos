@@ -2,8 +2,10 @@ import { db } from "./firebase.js";
 
 import {
   collection,
+  doc,
   getDocs,
   addDoc,
+  updateDoc,
   query,
   orderBy,
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
@@ -17,6 +19,7 @@ import {
 import {
   ROUTES,
   PHOTOS_COLLECTION,
+  storage,
   redirectTo,
   LoadingManager,
 } from "./general.js";
@@ -61,6 +64,19 @@ async function createPhoto(photoData) {
 //     return false;
 //   }
 // }
+
+async function updatePhoto(photoId, updatedData) {
+  return LoadingManager.wrap(async () => {
+    const docRef = doc(db, PHOTOS_COLLECTION, photoId);
+
+    await updateDoc(docRef, {
+      ...updatedData,
+      updatedAt: new Date(),
+    });
+
+    return true;
+  });
+}
 
 async function uploadImageToFirebase(file) {
   return LoadingManager.wrap(async () => {
@@ -140,6 +156,8 @@ function createMultiSelect(config) {
   const dropdown = document.createElement("div");
   dropdown.className = "multi-select-dropdown";
 
+  dropdown.classList.remove("open");
+
   const search = document.createElement("input");
   search.type = "text";
   search.placeholder = "buscar...";
@@ -214,13 +232,20 @@ function createMultiSelect(config) {
     });
   });
 
-  header.addEventListener("click", () => {
+  header.addEventListener("click", (e) => {
+    e.stopPropagation();
     dropdown.classList.toggle("open");
   });
 
   container.getSelectedValues = () => Array.from(selected);
 
   renderTags();
+
+  document.addEventListener("click", (event) => {
+    if (!wrapper.contains(event.target)) {
+      dropdown.classList.remove("open");
+    }
+  });
 }
 
 async function initDynamicFilters() {
@@ -229,6 +254,18 @@ async function initDynamicFilters() {
   filters.forEach((filterConfig) => {
     createMultiSelect(filterConfig);
   });
+
+  const peopleFilter = filters.find((f) => f.id === "filterPeople");
+
+  if (peopleFilter) {
+    createMultiSelect({
+      id: "modalPeople",
+      options: peopleFilter.options,
+      defaultLabel: "Selecionar pessoas",
+    });
+  }
+
+  populateEventSelect(filters);
 }
 
 function applyFiltersAndSort() {
@@ -284,6 +321,8 @@ function applyFiltersAndSort() {
 
   gallery.innerHTML = "";
 
+  updatePhotoCounter(filtered.length);
+
   if (!filtered.length) {
     gallery.innerHTML = "<p>Nenhuma memória encontrada 🫥</p>";
     return;
@@ -312,6 +351,13 @@ async function renderGallery() {
   applyFiltersAndSort();
 }
 
+function updatePhotoCounter(count) {
+  const counter = document.getElementById("photoCounter");
+  if (!counter) return;
+
+  counter.textContent = count === 1 ? "1 foto" : `${count} fotos`;
+}
+
 /* ================================
   HOME - ENVIAR FOTO NOVA
 ================================ */
@@ -338,16 +384,13 @@ function initPhotoUploadFlow() {
     event.preventDefault();
     if (!selectedFile) return;
     const imageUrl = await uploadImageToFirebase(selectedFile);
+    const peopleSelect = document.getElementById("modalPeople");
     const photoData = {
       image: imageUrl,
       yearStart: Number(document.getElementById("yearStart").value),
       yearEnd: Number(document.getElementById("yearEnd").value) || null,
       location: document.getElementById("location").value.trim(),
-      people: document
-        .getElementById("people")
-        .value.split(",")
-        .map((p) => p.trim())
-        .filter(Boolean),
+      people: peopleSelect?.getSelectedValues?.() || [],
       event: document.getElementById("event").value.trim(),
       // description: document.getElementById("description").value.trim(),
     };
@@ -359,13 +402,31 @@ function initPhotoUploadFlow() {
   });
 }
 
+function populateEventSelect(filters) {
+  const eventSelect = document.getElementById("event");
+  if (!eventSelect) return;
+
+  const eventFilter = filters.find((f) => f.id === "filterEvent");
+  if (!eventFilter) return;
+
+  eventSelect.innerHTML = "";
+
+  eventFilter.options.forEach((event) => {
+    const option = document.createElement("option");
+    option.value = event;
+    option.textContent = event;
+
+    eventSelect.appendChild(option);
+  });
+}
+
 /* ================================
   INIT
 ================================ */
 
-function initHomePage() {
+async function initHomePage() {
+  await initFilters();
   renderGallery();
-  initFilters();
   initPhotoUploadFlow();
 }
 
